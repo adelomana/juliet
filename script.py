@@ -72,6 +72,7 @@ def memeRunner(module, transcripts, sequencesSet, numberOfMotifs, motifLength, m
 
     # execute meme
     cmd='time meme %s -dna -revcomp -mod anr -w %s -nmotifs %s -text > %s 2> %s'%(inputFileForMeme, motifLength, numberOfMotifs, outputFileForMeme, errorFileForMeme)
+    print(cmd)
     os.system(cmd)
 
     return outputFileForMeme
