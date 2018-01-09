@@ -34,7 +34,7 @@ def memeReader(module, outputFileForMeme):
 def complementarySequenceConverter(a):
 
     if a == '':
-        print 'error 2 from complementarySequenceConverter'
+        print('error 2 from complementarySequenceConverter')
         sys.exit() 
 
     b = ''
@@ -50,8 +50,8 @@ def complementarySequenceConverter(a):
         elif x == 'N':
             c = 'N'
         else:
-            print 'error 1 from complementarySequenceConverter'
-            print c
+            print('error 1 from complementarySequenceConverter')
+            print(c)
             sys.exit()
         b = b + c
 
@@ -71,7 +71,7 @@ def memeRunner(module, transcripts, sequencesSet, numberOfMotifs, motifLength, m
     g.close()
 
     # execute meme
-    cmd='meme %s -dna -revcomp -mod anr -w %s -nmotifs %s -text > %s 2> %s'%(inputFileForMeme, motifLength, numberOfMotifs, outputFileForMeme, errorFileForMeme)
+    cmd='time meme %s -dna -revcomp -mod anr -w %s -nmotifs %s -text > %s 2> %s'%(inputFileForMeme, motifLength, numberOfMotifs, outputFileForMeme, errorFileForMeme)
     os.system(cmd)
 
     return outputFileForMeme
@@ -94,14 +94,14 @@ def reader():
         for element in GRMs[module]:
             if element not in lowConfidenceTranscripts:
                 lowConfidenceTranscripts.append(element)
-    print 'low confidence transcripts',len(lowConfidenceTranscripts)
-    print 'low confidence modules',len(GRMs)
+    print('low confidence transcripts',len(lowConfidenceTranscripts))
+    print('low confidence modules',len(GRMs))
 
     # cleaning out the ones that have residual higher than 0.4 and no motif below 0.1
     GRMsQuality={}
     inputFile=sourceDir+'/cluster.summary.tsv'
     with open(inputFile) as f:
-        f.next()
+        next(f)
         for line in f:
             vector=line.split('\t')
             name=int(vector[0])
@@ -118,8 +118,8 @@ def reader():
         for element in GRMs[module]:
             if element not in highConfidenceTranscripts:
                 highConfidenceTranscripts.append(element)
-    print 'high confidence transcripts',len(highConfidenceTranscripts)
-    print 'high confidence modules',len(GRMs)
+    print('high confidence transcripts',len(highConfidenceTranscripts))
+    print('high confidence modules',len(GRMs))
                                 
     return GRMs
 
@@ -141,8 +141,8 @@ def upstreamRetriever(transcript, upstreamLength, downstreamLength):
 
     gff3File='/Users/alomana/projects/green/data/genomic/phytozome/v5.5/annotation/Creinhardtii_281_v5.5.gene.gff3'
     with open(gff3File, 'r') as f:
-        f.next()
-        f.next()
+        next(f)
+        next(f)
         for line in f:
             vector = line.split('\t')
             if vector[2] == 'gene':
@@ -185,16 +185,16 @@ def upstreamRetriever(transcript, upstreamLength, downstreamLength):
         upstream = complementarySequenceConverter(inverse)
         
     else:
-        print 'error 1 from upstreamRetriever'
+        print('error 1 from upstreamRetriever')
         sys.exit()
 
     return upstream
 
 ### MAIN
 
-print
-print 'here comes the sun...'
-print
+print()
+print('here comes the sun...')
+print()
 
 # 0. general variables
 
@@ -215,26 +215,30 @@ res = open(resultsFile, 'w')
 res.write('module\tnumberOfGenes\tmoduleSize\tmotif\n')
 
 # 1. read the input of the structure
-print 'reading cMonkey output...'
+print('reading cMonkey output...')
 dataStructure = reader()
 
 # 2. for each module...
-print
+print()
 for module in dataStructure:
-    print 'working on module', module
+    print('working on module', module)
     
     # 2.1 define the sequences
-    print '\t retrieving upstream sequences...'
+    print('\t retrieving upstream sequences...')
     transcripts = dataStructure[module]
     sequencesSet = sequencesRetriever(transcripts, upstreamLength, downstreamLength)
 
     # 2.2. run meme
-    print '\t searching for common motifs...'
+    print('\t searching for common motifs...')
     outputFileForMeme = memeRunner(module, transcripts, sequencesSet, numberOfMotifs, motifLength, memeDir)
+    
     motifs, transcriptHits = memeReader(module, outputFileForMeme)
+    print(outputFileForMeme)
+    print(motifs)
+    print(transcriptHits)
 
     # 2.3. report the number of genes and the consensus sequence
-    print '\t reading MEME results...'
+    print('\t reading MEME results...')
     numberTargetGenes = [len(element) for element in motifs]
     sequences = [element[0] for element in motifs]
 
@@ -243,8 +247,8 @@ for module in dataStructure:
             listOfHits = ','.join(transcriptHits[i])
             res.write('%s\t%s\t%s\t%s\t%s\n'%(module, numberTargetGenes[i], str(len(transcripts)), motifs[i][0], listOfHits))
             res.flush()
-    print
+    print()
     
 res.close()
 
-print '... the world is a much better now.'
+print('... the world is a much better now.')
